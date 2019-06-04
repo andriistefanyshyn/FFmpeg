@@ -37,7 +37,9 @@
 #include "libavresample/avresample.h"
 #include "libswscale/swscale.h"
 #include "libswresample/swresample.h"
+#if CONFIG_POSTPROC
 #include "libpostproc/postprocess.h"
+#endif
 #include "libavutil/avassert.h"
 #include "libavutil/avstring.h"
 #include "libavutil/bprint.h"
@@ -60,6 +62,8 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 #endif
+
+#include "../overrides.h"
 
 static int init_report(const char *env);
 
@@ -1074,6 +1078,7 @@ static int warned_cfg = 0;
 
 static void print_all_libs_info(int flags, int level)
 {
+#if 0
     PRINT_LIB_INFO(avutil,   AVUTIL,   flags, level);
     PRINT_LIB_INFO(avcodec,  AVCODEC,  flags, level);
     PRINT_LIB_INFO(avformat, AVFORMAT, flags, level);
@@ -1083,6 +1088,7 @@ static void print_all_libs_info(int flags, int level)
     PRINT_LIB_INFO(swscale,  SWSCALE,  flags, level);
     PRINT_LIB_INFO(swresample,SWRESAMPLE,  flags, level);
     PRINT_LIB_INFO(postproc, POSTPROC, flags, level);
+#endif
 }
 
 static void print_program_info(int flags, int level)

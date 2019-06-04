@@ -492,8 +492,13 @@ AVFilter *avfilter_get_by_name(const char *name)
         return NULL;
 
     while ((f = avfilter_next(f)))
-        if (!strcmp(f->name, name))
+        if (!strcmp(f->name, name)){
+            av_log(NULL, AV_LOG_DEBUG, "avfilter_get_by_name, [%s], %p", name, f);
             return (AVFilter *)f;
+        }
+
+    av_log(NULL, AV_LOG_DEBUG, "avfilter_get_by_name, null [%s]", name);
+
 
     return NULL;
 }

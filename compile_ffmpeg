@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# ./compile_$FFMPEG_DIR $CC $EXTRA_CFLAGS $PLATFORM
+# $1 - $CC - compiler location
+# $2 - extra cflags for compiler
+# $3 - platform
+# $4 - location of where to put compiled files
+
+set -e
+
+echo "cc " $1
+echo "cflags " $2
+echo "platform " $3
+echo "prefix" $4
+
+INCLUDE="-I$3/usr/include -I$3/include -I$4/include"
+echo "INCLUDE" $INCLUDE
+
+$1 -c -nostdlib ffmpeg.c $2 $INCLUDE -o ffmpeg.o
+$1 -c -nostdlib ffmpeg_opt.c $2 $INCLUDE -o ffmpeg_opt.o
+$1 -c -nostdlib ffmpeg_filter.c $2 $INCLUDE -o ffmpeg_filter.o
+

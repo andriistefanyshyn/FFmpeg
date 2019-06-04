@@ -109,6 +109,9 @@
 
 #include "libavutil/avassert.h"
 
+#include "../overrides.h"
+#include "../ffmpeg_inc.c"
+
 const char program_name[] = "ffmpeg";
 const int program_birth_year = 2000;
 
@@ -314,7 +317,7 @@ void term_exit(void)
     term_exit_sigsafe();
 }
 
-static volatile int received_sigterm = 0;
+volatile int received_sigterm = 0;
 static volatile int received_nb_signals = 0;
 static volatile int transcode_init_done = 0;
 static volatile int ffmpeg_exited = 0;
@@ -1700,6 +1703,8 @@ static void print_report(int is_last_report, int64_t timer_start, int64_t cur_ti
 
     if (is_last_report)
         print_final_stats(total_size);
+
+    onProgress(pts);
 }
 
 static void flush_encoders(void)
@@ -4166,8 +4171,16 @@ int main(int argc, char **argv)
 //     }
 
     current_time = ti = getutime();
-    if (transcode() < 0)
+
+    int skip = onInitDone(input_files[0]/*at least one input file is expected*/);
+
+    if (!skip && transcode() < 0)
         exit_program(1);
+
+    if(!skip){
+        onPostExecute(output_files[0]/*at least one output file is expected*/);
+    }
+
     ti = getutime() - ti;
     if (do_benchmark) {
         av_log(NULL, AV_LOG_INFO, "bench: utime=%0.3fs\n", ti / 1000000.0);

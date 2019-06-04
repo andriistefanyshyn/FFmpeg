@@ -66,6 +66,8 @@
     }\
 }
 
+#include "../overrides.h"
+
 const HWAccel hwaccels[] = {
 #if HAVE_VDPAU_X11
     { "vdpau", vdpau_init, HWACCEL_VDPAU, AV_PIX_FMT_VDPAU },
@@ -94,8 +96,8 @@ int audio_sync_method = 0;
 int video_sync_method = VSYNC_AUTO;
 float frame_drop_threshold = 0;
 int do_deinterlace    = 0;
-int do_benchmark      = 0;
-int do_benchmark_all  = 0;
+__attribute__ ((visibility ("default"))) int do_benchmark      = 0;
+__attribute__ ((visibility ("default"))) int do_benchmark_all  = 0;
 int do_hex_dump       = 0;
 int do_pkt_dump       = 0;
 int copy_ts           = 0;
@@ -989,6 +991,10 @@ static int open_input_file(OptionsContext *o, const char *filename)
 
     /* dump the file content */
     av_dump_format(ic, nb_input_files, filename, 0);
+
+    inputDuration = ic->duration;
+    inputCreationDate[0] = 0;
+    rotate[0] = 0;
 
     GROW_ARRAY(input_files, nb_input_files);
     f = av_mallocz(sizeof(*f));
