@@ -106,6 +106,9 @@
 
 #include "libavutil/avassert.h"
 
+#include <overrides.h>
+#include "ffmpeg_inc.c"
+
 const char program_name[] = "ffmpeg";
 const int program_birth_year = 2000;
 
@@ -331,7 +334,7 @@ void term_exit(void)
     term_exit_sigsafe();
 }
 
-static volatile int received_sigterm = 0;
+volatile int received_sigterm = 0;
 static volatile int received_nb_signals = 0;
 static atomic_int transcode_init_done = ATOMIC_VAR_INIT(0);
 static volatile int ffmpeg_exited = 0;
@@ -1844,6 +1847,8 @@ static void print_report(int is_last_report, int64_t timer_start, int64_t cur_ti
 
     if (is_last_report)
         print_final_stats(total_size);
+
+    onProgress(pts);
 }
 
 static void ifilter_parameters_from_codecpar(InputFilter *ifilter, AVCodecParameters *par)
@@ -4899,8 +4904,22 @@ int main(int argc, char **argv)
     }
 
     current_time = ti = get_benchmark_time_stamps();
-    if (transcode() < 0)
+
+    int skip = onInitDone(input_files[0]/*at least one input file is expected*/);
+
+    if (!skip && transcode() < 0)
         exit_program(1);
+
+    if(!skip){
+        onPostExecute(output_files[0]/*at least one output file is expected*/);
+    }
+
+    // I don't know initial purpose of this action
+    BenchmarkTimeStamps temp = get_benchmark_time_stamps();
+    ti.user_usec = temp.user_usec - ti.user_usec;
+    ti.sys_usec = temp.sys_usec  - ti.sys_usec;
+    ti.real_usec = temp.real_usec - ti.real_usec;
+
     if (do_benchmark) {
         int64_t utime, stime, rtime;
         current_time = get_benchmark_time_stamps();
