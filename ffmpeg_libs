@@ -1,0 +1,6 @@
+#/bin/bash
+#
+
+set -e
+
+echo -lavutil -lswresample -lswscale -lavcodec -lavformat -lavresample -lavfilter ./cmdutils.o ./ffmpeg.o ./ffmpeg_opt.o ffmpeg_filter.o
